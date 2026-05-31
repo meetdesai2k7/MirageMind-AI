@@ -1,0 +1,108 @@
+#include <Arduino.h>
+#include <ESP32Servo.h>
+#include <DHT.h>
+
+#define TRIG 5
+#define ECHO 18
+
+#define SERVO_PIN 13
+
+#define DHTPIN 25
+#define DHTTYPE DHT22
+
+#define MQ135_PIN 35
+#define LDR_PIN 34
+
+Servo radarServo;
+DHT dht(DHTPIN, DHTTYPE);
+
+// ---------------- DISTANCE ----------------
+long getDistance() {
+
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+
+  digitalWrite(TRIG, LOW);
+
+  long duration = pulseIn(ECHO, HIGH, 30000);
+
+  if (duration == 0)
+    return 0;
+
+  long distance = duration * 0.034 / 2;
+
+  return distance;
+}
+
+// ---------------- SEND DATA ----------------
+void sendData(int angle) {
+
+  long distance = getDistance();
+
+  float temp = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
+  int gasValue = analogRead(MQ135_PIN);
+  int lightValue = analogRead(LDR_PIN);
+
+  if (isnan(temp))
+    temp = 0;
+
+  if (isnan(humidity))
+    humidity = 0;
+
+  Serial.print(angle);
+  Serial.print(",");
+
+  Serial.print(distance);
+  Serial.print(",");
+
+  Serial.print(temp);
+  Serial.print(",");
+
+  Serial.print(humidity);
+  Serial.print(",");
+
+  Serial.print(gasValue);
+  Serial.print(",");
+
+  Serial.println(lightValue);
+}
+
+// ---------------- SETUP ----------------
+void setup() {
+
+  Serial.begin(115200);
+
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+
+  radarServo.attach(SERVO_PIN);
+
+  dht.begin();
+
+  delay(2000);
+}
+
+// ---------------- LOOP ----------------
+void loop() {
+
+  for (int angle = 0; angle <= 180; angle += 5) {
+
+    radarServo.write(angle);
+    delay(80);
+
+    sendData(angle);
+  }
+
+  for (int angle = 180; angle >= 0; angle -= 5) {
+
+    radarServo.write(angle);
+    delay(80);
+
+    sendData(angle);
+  }
+}
