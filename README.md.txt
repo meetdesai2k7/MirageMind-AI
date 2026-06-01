@@ -1,8 +1,9 @@
 # Research Paper
-## Research Profile
+## Research Publication
 
-ORCID: https://orcid.org/my-orcid?orcid=0009-0003-5974-0361
+DOI: https://doi.org/10.5281/zenodo.20493372
 
+ORCID: https://orcid.org/0009-0003-5974-0361
 Title:
 
 MirageMind AI: Autonomous Environmental Intelligence Platform for Habitability Assessment and Exploration
